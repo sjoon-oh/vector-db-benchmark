@@ -10,7 +10,6 @@ on:
 jobs:
   runTenantsBenchmark:
     runs-on: ubuntu-latest
-    needs: runBenchmark
     if: ${{ always() }}
     steps:
       - uses: actions/checkout@v3
