@@ -50,11 +50,36 @@ class PgVectorUploader(BaseUploader):
         except KeyError:
             raise IncompatibilityError(f"Unsupported distance metric: {distance}")
 
-        cls.conn.execute("SET max_parallel_workers = 128")
-        cls.conn.execute("SET max_parallel_maintenance_workers = 128")
-        cls.conn.execute(
-            f"CREATE INDEX ON items USING hnsw (embedding {hnsw_distance_type}) WITH (m = {cls.upload_params['hnsw_config']['m']}, ef_construction = {cls.upload_params['hnsw_config']['ef_construct']})"
-        )
+        # 
+        # Query : 
+        # CREATE INDEX 
+        # ON items 
+        # USING ivfflat (embedding vector_l2_ops) 
+        # WITH (nlist = 100)
+        try:
+            if 'hnsw_config' in cls.upload_params:
+
+                cls.conn.execute("SET max_parallel_workers = 128")
+                cls.conn.execute("SET max_parallel_maintenance_workers = 128")
+                cls.conn.execute(
+                    f"CREATE INDEX CONCURRENTLY items_hnsw_idx ON items USING hnsw (embedding {hnsw_distance_type}) WITH (m = {cls.upload_params['hnsw_config']['m']}, ef_construction = {cls.upload_params['hnsw_config']['ef_construct']})"
+                )
+                
+            elif 'ivfflat_config' in cls.upload_params:
+
+                cls.conn.execute("SET max_parallel_workers = 128")
+                cls.conn.execute("SET max_parallel_maintenance_workers = 128")
+                cls.conn.execute(
+                    f"CREATE INDEX CONCURRENTLY items_ivfflat_idx ON items USING ivfflat (embedding {hnsw_distance_type}) WITH (lists = {cls.upload_params['ivfflat_config']['lists']})"
+                )
+            
+            else:
+                raise Exception("No vector index type found in upload_params")
+
+            print("Index created successfully.")
+
+        except Exception as e:
+            exit()
 
         return {}
 

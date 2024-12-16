@@ -86,5 +86,25 @@
           { "parallel": 100, "config": { "hnsw_ef": 64 } }, { "parallel": 100, "config": { "hnsw_ef": 128 } }, { "parallel": 100, "config": { "hnsw_ef": 256 } }, { "parallel": 100, "config": { "hnsw_ef": 512 } }
         ],
         "upload_params": { "parallel": 16, "hnsw_config": { "m": 64, "ef_construct": 512 } }
+    },
+    {
+      "name": "pgvector-spacev1b-hnsw",
+      "engine": "pgvector",
+      "connection_params": {},
+      "collection_params": {},
+      "search_params": [
+        { "parallel": 16, "config": { "hnsw_ef": 256 } }
+      ],
+      "upload_params": { "parallel": 64, "batch_size": 1024, "hnsw_config": { "m": 16, "ef_construct": 256 } }
+    },
+    {
+      "name": "pgvector-spacev1b-ivfflat",
+      "engine": "pgvector",
+      "connection_params": {},
+      "collection_params": {},
+      "search_params": [
+        { "parallel": 32, "config": { "ivfflat_probes": 96 } }
+      ],
+      "upload_params": { "parallel": 16, "batch_size": 1024, "ivfflat_config": { "lists": 32768 } }
     }
 ]

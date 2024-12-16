@@ -1,0 +1,32 @@
+version: '3.7'
+
+services:
+  pgvector-spacev1b:
+    container_name: pgvector-spacev1b
+    image: pgvector/pgvector:0.6.2-pg16
+    environment:
+      - POSTGRES_DB=pgvector-spacev1b
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=passwd
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    # shared_buffers should be 25% of memory
+    # maintenance_work_mem should be ~65%
+    command: postgres -c config_file=/usr/share/postgresql/postgresql.conf
+    # command: whoami
+    # shm_size should be shared_buffers + maintenance_work_mem
+    volumes:
+      - /home/oslab/sjoon/msra-workspace/venv-vector-db-benchmark/vector-db-benchmark/docker-volumes/pgvector-spacev1b:/var/lib/postgresql/data
+      - /home/oslab/sjoon/msra-workspace/venv-vector-db-benchmark/vector-db-benchmark/docker-volumes/postgresql-configs/postgresql-spacev1b.conf:/usr/share/postgresql/postgresql.conf
+      # - /home/oslab/sjoon/msra-workspace/venv-vector-db-benchmark/vector-db-benchmark/docker-volumes/pg-logs:/var/lib/postgresql/data/log
+    shm_size: 256g
+    ports:
+      - 5432:5432
+    logging:
+      driver: "json-file"
+      options:
+        max-file: 1
+        max-size: 10m
+    deploy:
+      resources:
+        limits:
+          memory: 288Gb

@@ -16,6 +16,30 @@ class PgVectorConfigurator(BaseConfigurator):
         self.conn.execute("CREATE EXTENSION IF NOT EXISTS vector;")
         pgvector.psycopg.register_vector(self.conn)
 
+        # 
+        # Start of the configuration for system trace
+        cur = self.conn.cursor()
+
+        cur.execute("SHOW shared_buffers")
+        shared_buffers_out = cur.fetchall()
+
+        cur.execute("SHOW work_mem")
+        work_mem_out = cur.fetchall()
+        
+        cur.execute("SHOW maintenance_work_mem")
+        maintenance_work_mem_out = cur.fetchall()
+
+        # 
+        cur.execute(f"CREATE EXTENSION IF NOT EXISTS pg_buffercache")
+        cur.execute(f"CREATE EXTENSION IF NOT EXISTS pg_stat_statements")
+        # cur.execute(f"CREATE EXTENSION IF NOT EXISTS pg_stat_io")
+
+        cur.execute(f"SELECT pg_stat_statements_reset()")
+
+        cur.execute(f"SET track_counts = on")
+        cur.execute(f"SET track_io_timing = on")
+        
+
     def clean(self):
         self.conn.execute(
             "DROP TABLE IF EXISTS items CASCADE;",

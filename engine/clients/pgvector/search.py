@@ -23,13 +23,26 @@ class PgVectorSearcher(BaseSearcher):
         cls.conn = psycopg.connect(**get_db_config(host, connection_params))
         register_vector(cls.conn)
         cls.cur = cls.conn.cursor()
-        cls.cur.execute(f"SET hnsw.ef_search = {search_params['config']['hnsw_ef']}")
-        if distance == Distance.COSINE:
-            cls.query = "SELECT id, embedding <=> %s AS _score FROM items ORDER BY _score LIMIT %s"
-        elif distance == Distance.L2:
-            cls.query = "SELECT id, embedding <-> %s AS _score FROM items ORDER BY _score LIMIT %s"
-        else:
-            raise NotImplementedError(f"Unsupported distance metric {cls.distance}")
+
+        if 'hnsw_ef' in search_params['config']:
+
+            cls.cur.execute(f"SET hnsw.ef_search = {search_params['config']['hnsw_ef']}")
+            if distance == Distance.COSINE:
+                cls.query = "SELECT id, embedding <=> %s AS _score FROM items ORDER BY _score LIMIT %s"
+            elif distance == Distance.L2:
+                cls.query = "SELECT id, embedding <-> %s AS _score FROM items ORDER BY _score LIMIT %s"
+            else:
+                raise NotImplementedError(f"Unsupported distance metric {cls.distance}")
+        
+        elif 'ivfflat_probes' in search_params['config']:
+
+            cls.cur.execute(f"SET ivfflat.probes = {search_params['config']['ivfflat_probes']}")
+            if distance == Distance.COSINE:
+                cls.query = "SELECT id, embedding <=> %s AS _score FROM items ORDER BY _score LIMIT %s"
+            elif distance == Distance.L2:
+                cls.query = "SELECT id, embedding <-> %s AS _score FROM items ORDER BY _score LIMIT %s"
+            else:
+                raise NotImplementedError(f"Unsupported distance metric {cls.distance}")
 
     @classmethod
     def search_one(cls, query: Query, top) -> List[Tuple[int, float]]:

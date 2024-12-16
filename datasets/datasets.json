@@ -354,5 +354,12 @@
     "type": "tar",
     "link": "https://storage.googleapis.com/ann-filtered-benchmark/datasets/random_keywords_1m_vocab_10_no_filters.tgz",
     "path": "random-100-match-kw-small-vocab/random_keywords_1m_vocab_10_no_filters"
+  },
+  {
+    "name": "spacev1b-extended",
+    "vector_size": 100,
+    "distance": "l2",
+    "type": "tar",
+    "path": "spacev1b-extended"
   }
 ]
